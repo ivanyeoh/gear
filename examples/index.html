@@ -24,10 +24,13 @@
 </head>
 <body ng-controller="demoCtrl">
     <div class="container">
-        <gr-widget header="Top Up Credit">
-            <gr-form></gr-form>
-        </gr-widget>
-        <pre>{{data|json}}</pre>
+
+        <gr-form>
+            <gr-form-field type="money" name="amount"></gr-form-field>
+            <gr-form-field type="datetime" name="transaction_datetime"></gr-form-field>
+            <pre>{{data|json}}</pre>
+        </gr-form>
+
     </div>
 </body>
 </html>

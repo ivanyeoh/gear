@@ -1,5 +1,5 @@
 angular.module('demo', ['gear'])
-    .controller('demoCtrl', function ($scope) {
+    .controller('demoCtrl', function ($scope, $timeout) {
         $scope.data = {};
         $scope.dataDefinitions = [
             {

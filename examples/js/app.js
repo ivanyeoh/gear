@@ -1,6 +1,10 @@
 angular.module('demo', ['gear'])
-    .controller('demoCtrl', function ($scope, $timeout) {
-        $scope.data = {};
+    .controller('demoCtrl', function ($scope, grResource) {
+        var TopUpResource = grResource('top-up');
+
+        var topUp = new TopUpResource();
+
+        $scope.data = topUp;
         $scope.dataDefinitions = [
             {
                 field: 'amount',
@@ -26,6 +30,11 @@ angular.module('demo', ['gear'])
                         message: 'This field is required'
                     }
                 ]
+            },
+            {
+                "field": "username",
+                "type": "username",
+                "guarded": true
             }
 //            {
 //                field: 'transaction_number',

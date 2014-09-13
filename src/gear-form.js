@@ -19,7 +19,7 @@
         function createMessages (attrs) {
             var messages = angular.element('<gr-messages>');
             messages.addClass('help-block');
-            messages.attr('form', 'form');
+            messages.attr('ctrl', 'fieldCtrl');
             messages.attr('messages', angular.toJson({
                 required: 'This field is required'
             }));
@@ -31,10 +31,11 @@
             return angular.extend({
                 restrict: 'E',
                 scope: {
+                    name: '@',
                     model: '=',
-                    form: '='
+                    fieldCtrl: '='
                 },
-                template: '<span></span>'
+                template: '<div></div>'
             }, settings);
         }
 
@@ -163,9 +164,8 @@
         return directives[type];
     }
 
-
-    angular.module('gear.form', ['gear.helper', 'gear.validator', 'ngMessages'])
-        .directive('grWidget', function () {
+    angular.module('gear.form', ['gear.helper', 'gear.validator', 'gear.decorator'])
+        .directive('grWidgetBox', function () {
             return {
                 restrict: 'E',
                 replace: true,
@@ -176,120 +176,92 @@
                 template: '<div class="widget box">' +
                     '<div class="widget-header"><h4><i class="icon-reorder"></i> {{ header }}</h4></div>' +
                     '<div class="widget-content" ng-transclude></div>' +
-                    '</div>'
+                '</div>'
             }
         })
-        .directive('grFormOld', function (gr, arr, $compile, str, $injector) {
+        .directive('grMessages', function () {
             return {
                 restrict: 'E',
-                replace: true,
-                template: '<ng-form name="form" class="form-horizontal"></ng-form>',
-                link: function (scope, element) {
-
-                    if (scope.dataDefinitions) {
-                        arr.forEach(scope.dataDefinitions, function (definition) {
-                            var inputDirectiveName = 'gr-input-' + definition.type;
-                            gr.ensureDirectiveExists(inputDirectiveName);
-
-                            var validationJson = angular.toJson(definition.validations);
-                            var inputDirective = angular.element('<' + inputDirectiveName + '>');
-                            inputDirective.attr('id', definition.field);
-                            inputDirective.attr('name', definition.field);
-                            inputDirective.attr('field-type', definition.type);
-                            inputDirective.attr('validations', validationJson);
-                            inputDirective.attr('model', 'data.' + definition.field);
-
-                            var formGroup = angular.element('<gr-form-group>');
-                            formGroup.attr('name', definition.field);
-                            formGroup.attr('label', str.humanize(definition.field));
-                            formGroup.attr('field-type', definition.type);
-                            formGroup.attr('validations', validationJson);
-                            formGroup.attr('form', 'form');
-                            formGroup.append(inputDirective);
-
-                            element.append(formGroup);
-                        });
-                    }
-
-                    $compile(element)(scope);
-                }
+                scope: {
+                    messages: '=',
+                    ctrl: '='
+                },
+                template: '<div><span class="help-block" ng-repeat="(key, value) in ctrl.$error" ng-show="ctrl.$dirty && ctrl.$error[key]">' +
+                    '{{messages[key]}}' +
+                '</span></div>'
             }
         })
-        .directive('grForm', function (dom, arr, gr, $compile) {
-            var i = 0;
+        .directive('grInputDate', InputDirectiveFactory('date'))
+        .directive('grInputTime', InputDirectiveFactory('time'))
+        .directive('grInputDatetime', InputDirectiveFactory('datetime'))
+        .directive('grInputMoney', InputDirectiveFactory('float', {decimal:2}))
+        .directive('grInputBigString', InputDirectiveFactory('textarea'))
+        .directive('grInputString', InputDirectiveFactory('text'))
+        .directive('grForm', function (gr) {
+            var formNumber = 0;
+            var templates = {
+                ngForm: '<div class="{{grFormClassName}}">' +
+                    '<ng-form name="{{grFormName}}">' +
+                        '<gr-form-field ng-repeat="grDefinition in grDataDefinitions" ng-if="isEditable(grDefinition)"></gr-form-field>' +
+                        '<gr-form-actions></gr-form-actions>' +
+                    '</ng-form>' +
+                '</div>'
+            };
 
             return {
                 restrict: 'E',
                 replace: true,
                 transclude: true,
                 scope: true,
-                template: '<div></div>',
-                compile: function (tElm, tAttr) {
-                    var formType = tAttr.type || 'form-horizontal';
-                    tElm.addClass(formType);
+                template: templates.ngForm,
+                controller: function ($scope, $element, $attrs) {
+                    $scope.grData = $scope.data;
+                    $scope.grDataDefinitions = $scope.dataDefinitions;
+                    $scope.grFormName = 'form' + formNumber++;
+                    $scope.grFormClassName = $attrs.type || 'form-horizontal';
+                    $scope.isEditable = function (definition) {
+                        return !definition.guarded;
+                    };
+                },
+                link: function (scope, element, attrs, ctrl, transclude) {
+                    scope.grForm = scope[scope.grFormName];
 
-                    var aForm = dom.createElement('ng-form');
-                    var formName = 'form' + i++;
-                    aForm.attr('name', formName);
-                    tElm.append(aForm);
-
-                    return function (scope, elm, attrs, ctrl, transclude) {
-                        scope.formCtrl = scope[formName];
-                        var formElement = elm.find('[name='+formName+']');
-
-//                        if (scope.dataDefinitions) {
-//                            arr.forEach(scope.dataDefinitions, function (definition) {
-//                                var inputField = dom.createElement('gr-form-field', {
-//                                    'name': definition.field,
-//                                    'label': definition.label,
-//                                    'type': definition.type
-//                                });
-//                                formElement.append(inputField);
-//                            });
-//
-//                            $compile(elm)(scope);
-//                        }
-
-                        transclude(scope, function (tElements) {
-                            aForm.append(tElements);
-                        });
-                    }
+                    transclude(scope, function (tElements) {
+                        element.append(tElements);
+                    });
                 }
             }
         })
-        .directive('grFormGroup', function (dom, arr, field, $compile) {
+        .directive('grFormField', function (dom, arr, field, $compile) {
+            var labelTemplate = '<gr-form-label name="{{grFieldName}}" class="col-sm-2">{{grFieldLabel}}</gr-form-label>';
+            var inputGroupTemplate = '<div class="col-sm-10"></div>';
+
             return {
                 restrict: 'E',
                 replace: true,
                 transclude: true,
-                template: '<div class="form-group" ng-class="{\'has-error\': form.$dirty && form.$invalid}"></div>',
-                link: function (scope, formGroupElement, attrs, ctrl, transclude) {
-                    console.log(attrs.form);
-                    transclude(scope, function (tElements) {
-                        var noLabel = false;
-                        var formLabel = arr.remove(tElements, function (tElement) {
-                            return dom.isLabel(tElement)
-                        });
-                        if (!formLabel.length) {
-                            if (field.hasLabel(attrs)) {
-                                formLabel = dom.createElement('gr-form-label');
-                                formLabel.addClass('col-sm-2');
-                                formLabel.html(field.getLabel(attrs));
-                                $compile(formLabel)(scope);
-                                formGroupElement.append(formLabel);
-                            }
-                            else {
-                                noLabel = true;
-                            }
-                        }
+                scope: true,
+                template: '<div class="form-group" ng-class="{\'has-error\': grForm[grFieldName].$invalid}"></div>',
+                link: function (scope, formGroupElement, attrs) {
+                    scope.grFieldName = field.getName(attrs, scope);
+                    scope.grFieldLabel = field.getLabel(attrs, scope);
 
-                        var inputDiv = dom.createElement('div', {
-                            'class': 'control-input'+(noLabel ? ' col-sm-12' : ' col-sm-10')
-                        });
-                        inputDiv.append(tElements);
+                    var formLabel = angular.element(labelTemplate);
+                    $compile(formLabel)(scope);
 
-                        formGroupElement.append(inputDiv);
+                    formGroupElement.append(formLabel);
+
+                    var inputField = field.createDirectiveFromType(field.getType(attrs, scope), {
+                        name: 'grFieldName',
+                        model: 'grData[grFieldName]',
+                        fieldCtrl: 'grForm[grFieldName]'
                     });
+                    $compile(inputField)(scope);
+
+                    var inputGroup = angular.element(inputGroupTemplate);
+                    inputGroup.append(inputField);
+
+                    formGroupElement.append(inputGroup);
                 }
             }
         })
@@ -298,52 +270,57 @@
                 restrict: 'E',
                 replace: true,
                 transclude: true,
-                template: '<label class="control-label" ng-transclude></label>',
-                compile: function (elm, attrs) {
-                    if (attrs.className) {
-                        elm.addClass(attrs.className);
-                    }
-                }
+                scope: {
+                    name: '@'
+                },
+                template: '<label class="control-label" for="{{name}}" ng-transclude></label>'
             }
         })
-        .directive('grFormField', function (field, dom) {
+        .directive('grFormActionButton', function () {
             return {
                 restrict: 'E',
                 replace: true,
-                template: '<div></div>',
-                compile: function (elm, attrs) {
-                    attrs.type = attrs.type || 'string';
-
-                    var formGroup = dom.createElement('gr-form-group');
-                    formGroup.attr('label', field.getLabel(attrs));
-                    formGroup.attr('form', 'formCtrl.'+attrs.name);
-
-                    var formInput = dom.createElement(field.getDirectiveName(attrs), attrs);
-                    formInput.attr('model', 'data.'+attrs.name);
-                    formInput.attr('form', 'formCtrl.'+attrs.name);
-                    formGroup.append(formInput);
-
-                    elm.append(formGroup);
-                }
+                transclude: true,
+                scope: {
+                    action: '&'
+                },
+                template: '<button class="btn" ng-click="action()" ng-transclude></button>'
             }
         })
-        .directive('grMessages', function () {
+        .directive('grFormActions', function ($compile) {
             return {
                 restrict: 'E',
-                scope: {
-                    messages: '=',
-                    form: '='
+                replace: true,
+                transclude: true,
+                scope: true,
+                template: '<div class="form-actions"></div>',
+                controller: function ($scope) {
+                    function doAction (action) {
+                        var resourceAction = '$'+action;
+                        if (!angular.isFunction($scope.grData[resourceAction])) {
+                            throw 'Calling undefined function grData.$'+resourceAction+'()';
+                        }
+                        return $scope.grData[resourceAction]();
+                    }
+
+                    $scope.grDoDefaultAction = function () {
+                        doAction('save');
+                    };
                 },
-                template: '<span class="help-block" ng-repeat="(key, value) in form.$error" ng-show="form.$dirty && form.$error[key]">' +
-                    '{{messages[key]}}' +
-                '</span>'
+                link: function (scope, element, attrs, ctrl, transclude) {
+                    transclude(scope, function (tElements) {
+                        if (!tElements.length) {
+                            var actionButton = angular.element('<gr-form-action-button>');
+                            actionButton.addClass('btn-primary pull-right');
+                            actionButton.attr('type', 'submit');
+                            actionButton.attr('action', 'grDoDefaultAction()');
+                            actionButton.html('Submit');
+                            $compile(actionButton)(scope);
+                            element.append(actionButton);
+                        }
+                    });
+                }
             }
-        })
-        .directive('grInputDate', InputDirectiveFactory('date'))
-        .directive('grInputTime', InputDirectiveFactory('time'))
-        .directive('grInputDatetime', InputDirectiveFactory('datetime'))
-        .directive('grInputMoney', InputDirectiveFactory('float', {decimal:2}))
-        .directive('grInputBigString', InputDirectiveFactory('textarea'))
-        .directive('grInputString', InputDirectiveFactory('text'));
+        });
 
 })(angular);

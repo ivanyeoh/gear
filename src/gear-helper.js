@@ -35,16 +35,41 @@ angular.module('gear.helper', [])
             }
         }
     })
-    .factory('field', function (str) {
+    .factory('field', function (str, dom) {
+        function resolveAttr (attrs, scope, aName, dName) {
+            if (attrs[aName]) {
+                return attrs[aName];
+            }
+
+            if (scope.grDefinition && scope.grDefinition[dName||aName]) {
+                return scope.grDefinition[dName||aName];
+            }
+        }
+
         return {
-            getDirectiveName: function (attrs) {
-                return 'gr-input-'+str.dasherize(attrs.type);
+            resolveName: function (attrs, scope) {
+                return resolveAttr(attrs, scope, 'name', 'field');
             },
-            hasLabel: function (attrs) {
-                return attrs.label || attrs.name;
+            resolveLabel: function (attrs, scope) {
+                return resolveAttr(attrs, scope, 'label');
             },
-            getLabel: function (attrs) {
-                return attrs.label || str.humanize(attrs.name);
+            resolveType: function (attrs, scope) {
+                return resolveAttr(attrs, scope, 'type');
+            },
+            createDirectiveFromType: function (type, attrs) {
+                return dom.createElement('gr-input-'+str.dasherize(type), attrs);
+            },
+            hasLabel: function (attrs, scope) {
+                return this.resolveLabel(attrs, scope) || this.resolveName(attrs, scope);
+            },
+            getLabel: function (attrs, scope) {
+                return this.resolveLabel(attrs, scope) || str.humanize(this.resolveName(attrs, scope));
+            },
+            getName: function (attrs, scope) {
+                return this.resolveName(attrs, scope);
+            },
+            getType: function (attrs, scope) {
+                return this.resolveType(attrs, scope);
             }
         }
     });

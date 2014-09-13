@@ -1,4 +1,4 @@
-angular.module('gear', ['gear.form'])
+angular.module('gear', ['ngResource', 'gear.form', 'gear.resource'])
     .factory('gr', function (arr, str, $injector, $compile) {
         return {
             hasDirective: function (directiveName) {

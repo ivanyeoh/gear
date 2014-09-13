@@ -13,24 +13,36 @@
     <script src="../bower_components/pickadate/lib/compressed/picker.date.js"></script>
     <script src="../bower_components/pickadate/lib/compressed/picker.time.js"></script>
     <script src="../bower_components/angular/angular.min.js"></script>
-    <script src="../bower_components/angular-messages/angular-messages.min.js"></script>
+    <script src="../bower_components/angular-resource/angular-resource.min.js"></script>
     <script src="../bower_components/lodash/dist/lodash.min.js"></script>
     <script src="../bower_components/underscore.string/dist/underscore.string.min.js"></script>
     <script src="../src/gear-helper.js"></script>
+    <script src="../src/gear-resource.js"></script>
     <script src="../src/gear-validator.js"></script>
+    <script src="../src/gear-decorator.js"></script>
     <script src="../src/gear-form.js"></script>
     <script src="../src/gear.js"></script>
     <script src="js/app.js"></script>
 </head>
 <body ng-controller="demoCtrl">
     <div class="container">
+        <!--<gr-form>-->
+            <!--<gr-form-field type="money" name="amount"></gr-form-field>-->
+            <!--<gr-form-field type="datetime" name="transaction_datetime"></gr-form-field>-->
+            <!--<pre>{{data|json}}</pre>-->
+        <!--</gr-form>-->
 
-        <gr-form>
-            <gr-form-field type="money" name="amount"></gr-form-field>
-            <gr-form-field type="datetime" name="transaction_datetime"></gr-form-field>
-            <pre>{{data|json}}</pre>
-        </gr-form>
+        <!--<gr-form source="data">-->
+            <!--<gr-form-group ng-repeat="definition in definitions">-->
+                <!--<gr-form-label for="getFieldName()">{{getFieldLabel()}}</gr-form-label>-->
+            <!--</gr-form-group>-->
+        <!--</gr-form>-->
 
+        <gr-widget-box header="Top Up Credit">
+            <gr-form>
+                {{data|json}}
+            </gr-form>
+        </gr-widget-box>
     </div>
 </body>
 </html>

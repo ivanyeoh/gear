@@ -52,4 +52,15 @@ angular.module('gear.navigation', [])
                 });
             }
         }
+    })
+    .directive('grNavbarLink', function (dom) {
+        return {
+            restrict: 'E',
+            replace: true,
+            transclude: true,
+            scope: {
+                href: '@'
+            },
+            template: '<li><a href="{{href}}" ng-transclude></a></li>'
+        }
     });

@@ -32,10 +32,14 @@
     <script src="js/app.js"></script>
 </head>
 <body ng-controller="demoCtrl">
-    <gr-navbar>
+    <gr-navbar fluid="false">
         <gr-navbar-header href="/">
             <strong>DAI</strong>GOU
         </gr-navbar-header>
+        <gr-navbar-nav>
+            <gr-navbar-link href="/ss">SS</gr-navbar-link>
+            <gr-navbar-link href="/ssa">SSa</gr-navbar-link>
+        </gr-navbar-nav>
         <gr-navbar-nav position="right">
             <gr-dropdown header="GOGO">
                 <gr-dropdown-item href="/aa">AA</gr-dropdown-item>
@@ -45,18 +49,6 @@
     </gr-navbar>
 
     <div class="container">
-        <!--<gr-form>-->
-            <!--<gr-form-field type="money" name="amount"></gr-form-field>-->
-            <!--<gr-form-field type="datetime" name="transaction_datetime"></gr-form-field>-->
-            <!--<pre>{{data|json}}</pre>-->
-        <!--</gr-form>-->
-
-        <!--<gr-form source="data">-->
-            <!--<gr-form-group ng-repeat="definition in definitions">-->
-                <!--<gr-form-label for="getFieldName()">{{getFieldLabel()}}</gr-form-label>-->
-            <!--</gr-form-group>-->
-        <!--</gr-form>-->
-
         <gr-widget-box header="Top Up Credit">
             <gr-form>
                 {{data|json}}

@@ -1,4 +1,11 @@
 angular.module('gear.page', [])
+    .factory('grPage', function () {
+        var page = {
+            title: '',
+            desc: ''
+        };
+        return page;
+    })
     .directive('grPageHeader', function () {
         return {
             restrict: 'E',

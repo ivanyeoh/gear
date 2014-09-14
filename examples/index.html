@@ -16,18 +16,34 @@
     <script src="../bower_components/angular-resource/angular-resource.min.js"></script>
     <script src="../bower_components/lodash/dist/lodash.min.js"></script>
     <script src="../bower_components/underscore.string/dist/underscore.string.min.js"></script>
+    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="../bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
     <script src="../src/gear-helper.js"></script>
     <script src="../src/gear-resource.js"></script>
     <script src="../src/gear-validator.js"></script>
     <script src="../src/gear-decorator.js"></script>
+    <script src="../src/gear-dropdown.js"></script>
     <script src="../src/gear-navigation.js"></script>
     <script src="../src/gear-box.js"></script>
     <script src="../src/gear-form.js"></script>
+    <script src="../src/gear-scroll.js"></script>
     <script src="../src/gear.js"></script>
     <script src="js/route.js"></script>
     <script src="js/app.js"></script>
 </head>
 <body ng-controller="demoCtrl">
+    <gr-navbar>
+        <gr-navbar-header href="/">
+            <strong>DAI</strong>GOU
+        </gr-navbar-header>
+        <gr-navbar-nav position="right">
+            <gr-dropdown header="GOGO">
+                <gr-dropdown-item href="/aa">AA</gr-dropdown-item>
+                <gr-dropdown-item href="/bb">BB</gr-dropdown-item>
+            </gr-dropdown>
+        </gr-navbar-nav>
+    </gr-navbar>
+
     <div class="container">
         <!--<gr-form>-->
             <!--<gr-form-field type="money" name="amount"></gr-form-field>-->

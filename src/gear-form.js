@@ -121,7 +121,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                 function doAction (action) {
                     var resourceAction = '$'+action;
                     if (!angular.isFunction($scope.grData[resourceAction])) {
-                        throw 'Calling undefined function grData.$'+resourceAction+'()';
+                        throw 'Calling undefined function grData.'+resourceAction+'()';
                     }
                     return $scope.grData[resourceAction]();
                 }

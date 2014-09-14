@@ -1,1 +1,1 @@
-angular.module('gear', ['gear.form', 'gear.box', 'gear.navigation']);
+angular.module('gear', ['gear.form', 'gear.box', 'gear.navigation', 'gear.dropdown']);

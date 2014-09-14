@@ -1,6 +1,9 @@
 angular.module('gear.helper', [])
     .factory('gr', function (arr, str, $injector, $compile) {
         return {
+            setDefaultValue: function (obj, key, value) {
+                if (angular.isUndefined(obj[key])) obj[key] = value;
+            },
             hasDirective: function (directiveName) {
                 return $injector.has(str.camelize(directiveName+'-directive'));
             },
@@ -45,11 +48,17 @@ angular.module('gear.helper', [])
                 });
                 return element;
             },
+            getTagName: function (element) {
+                return element.tagName ? element.tagName.toLowerCase() : '';
+            },
             isLabel: function (element) {
                 return element.tagName && element.tagName.toLowerCase() === 'label'
             },
             isText: function (element) {
                 return element.nodeType && element.nodeType === document.TEXT_NODE;
+            },
+            hasContent: function (element) {
+                return (element.innerHTML || element.innerText || element.textContent).trim() ? true : false;
             }
         }
     })

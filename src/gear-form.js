@@ -27,11 +27,17 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
             template: templates.ngForm,
             controller: function ($scope, $element, $attrs) {
                 $scope.grData = $scope.data;
+                $scope.$watch('data', function () {
+                    $scope.grData = $scope.data;
+                }, true);
                 $scope.grDataDefinitions = $scope.dataDefinitions;
+                $scope.$watch('dataDefinitions', function () {
+                    $scope.grDataDefinitions = $scope.dataDefinitions;
+                }, true);
                 $scope.grFormName = 'form' + formNumber++;
                 $scope.grFormClassName = $attrs.type || 'form-horizontal';
                 $scope.isEditable = function (definition) {
-                    return !definition.guarded;
+                    return !definition.guarded && !definition.type === 'auto_increment';
                 };
             },
             link: function (scope, element, attrs, ctrl, transclude) {

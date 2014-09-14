@@ -1,6 +1,6 @@
 angular.module('gear.resource', ['ngResource'])
     .factory('grResource', function ($resource) {
-        var apiPath = '/api';
+        var apiPath = 'api/public/index.php/';
         var ngResources = {};
 
         function buildNgResource (resource, type) {
@@ -26,6 +26,17 @@ angular.module('gear.resource', ['ngResource'])
         return function (resourceName) {
             return getNgResource(resourceName);
         };
+    })
+    .factory('grResourceInfo', function ($http) {
+        var apiPath = 'api/public/index.php/';
+
+        return {
+            getSchema: function (modelName, successCallback) {
+                return $http.get(apiPath+'tell/'+modelName).success(function (data) {
+                    successCallback(data.schema);
+                });
+            }
+        }
     });
 
 window.GearResource = (function () {

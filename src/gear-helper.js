@@ -1,4 +1,30 @@
 angular.module('gear.helper', [])
+    .factory('gr', function (arr, str, $injector, $compile) {
+        return {
+            hasDirective: function (directiveName) {
+                return $injector.has(str.camelize(directiveName+'-directive'));
+            },
+            ensureDirectiveExists: function (directiveName) {
+                if (!this.hasDirective(directiveName)) {
+                    throw 'Directive "'+directiveName+'" is not exists';
+                }
+            },
+            appendInputValidations: function (scope, element) {
+                var gr = this;
+
+                if (!scope.validations) {
+                    return;
+                }
+
+                arr.forEach(scope.validations, function (validation) {
+                    gr.ensureDirectiveExists('validate-'+validation.type);
+                    element.attr('validate-'+str.dasherize(validation.type), angular.toJson(validation));
+                });
+
+                $compile(element)(scope);
+            }
+        }
+    })
     .factory('str', function () {
         return _.str;
     })
@@ -44,6 +70,8 @@ angular.module('gear.helper', [])
             if (scope.grDefinition && scope.grDefinition[dName||aName]) {
                 return scope.grDefinition[dName||aName];
             }
+
+            return '';
         }
 
         return {

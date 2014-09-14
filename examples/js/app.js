@@ -1,10 +1,9 @@
 angular.module('demo', ['gear'])
-    .controller('demoCtrl', function ($scope, grResource) {
-        var TopUpResource = grResource('top-up');
+    .controller('demoCtrl', function ($scope) {
+//        var TopUpResource = grResource('top-up');
+//        var topup = new TopUpResource();
 
-        var topUp = new TopUpResource();
-
-        $scope.data = topUp;
+        $scope.data = {};
         $scope.dataDefinitions = [
             {
                 field: 'amount',

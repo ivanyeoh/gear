@@ -11,10 +11,10 @@ angular.module('gear.dropdown', [])
             tagName: '@'
         },
         template: '<li class="dropdown">' +
-            '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
-            '<i class="fa fa-male" ng-if="icon"></i>' +
-            '<span class="{{headerClass}}">{{header}}</span> ' +
-            '<i class="caret small"></i>' +
+            '<a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">' +
+                '<i class="fa fa-male" ng-if="icon"></i>' +
+                '<span class="{{headerClass}}">{{header}}</span> ' +
+                '<i class="caret small"></i>' +
             '</a>' +
             '<ul class="dropdown-menu" role="menu" ng-transclude></ul>' +
         '</li>'

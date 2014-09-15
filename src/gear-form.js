@@ -124,16 +124,12 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
             scope: true,
             template: '<div class="form-actions"></div>',
             controller: function ($scope) {
-                function doAction (action) {
+                $scope.grDo = function (action) {
                     var resourceAction = '$'+action;
                     if (!angular.isFunction($scope.grData[resourceAction])) {
                         throw 'Calling undefined function grData.'+resourceAction+'()';
                     }
                     return $scope.grData[resourceAction]();
-                }
-
-                $scope.grDoDefaultAction = function () {
-                    doAction('save');
                 };
             },
             link: function (scope, element, attrs, ctrl, transclude) {
@@ -142,7 +138,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                         var actionButton = angular.element('<gr-form-action-button>');
                         actionButton.addClass('btn-primary pull-right');
                         actionButton.attr('type', 'submit');
-                        actionButton.attr('action', 'grDoDefaultAction()');
+                        actionButton.attr('action', 'grDo(\'save\')');
                         actionButton.html('Submit');
                         $compile(actionButton)(scope);
                         element.append(actionButton);
@@ -264,7 +260,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                                 scope.model = null;
                                 return;
                             }
-                            scope.model = dateInput.pickadate('picker').get('select', 'yyyy/mm/dd');
+                            scope.model = dateInput.pickadate('picker').get('select', 'yyyy-mm-dd');
                             scope.$apply();
                         }
 
@@ -297,7 +293,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                                 scope.model = null;
                                 return;
                             }
-                            scope.model = timeInput.pickatime('picker').get('select', 'HH:i');
+                            scope.model = timeInput.pickatime('picker').get('select', 'HH:i:00');
                             scope.$apply();
                         }
 

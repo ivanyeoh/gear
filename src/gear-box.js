@@ -8,7 +8,7 @@ angular.module('gear.box', [])
                 header: '@'
             },
             template: '<div class="widget box">' +
-                '<div class="widget-header"><h4><i class="icon-reorder"></i> {{ header }}</h4></div>' +
+                '<div class="widget-header"><h4><i class="fa fa-reorder"></i> {{ header }}</h4></div>' +
                 '<div class="widget-content" ng-transclude></div>' +
                 '</div>'
         }

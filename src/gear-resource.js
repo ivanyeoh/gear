@@ -1,13 +1,13 @@
 angular.module('gear.resource', ['ngResource'])
     .factory('grResource', function ($resource) {
-        var apiPath = 'api/public/index.php/';
+        var apiPath = 'api/public/index.php';
         var ngResources = {};
 
-        function buildNgResource (resource, type) {
+        function buildNgResource (resource, name) {
             angular.forEach(resource, function (definition) {
                 definition.url = apiPath+definition.url;
             });
-            ngResources[type] = $resource(type, null, resource, {stripTrailingSlashes: false})
+            ngResources[name] = $resource(name, null, resource, {stripTrailingSlashes: false});
         }
 
         function buildNgResources() {

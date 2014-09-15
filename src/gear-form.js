@@ -11,7 +11,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
     .directive('grForm', function (gr) {
         var formNumber = 0;
         var templates = {
-            ngForm: '<div class="{{grFormClassName}}">' +
+            ngForm: '<div class="row-border {{grFormClassName}}">' +
                 '<ng-form name="{{grFormName}}">' +
                     '<gr-form-field ng-repeat="grDefinition in grDataDefinitions" ng-if="isEditable(grDefinition)"></gr-form-field>' +
                     '<gr-form-actions></gr-form-actions>' +
@@ -37,7 +37,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                 $scope.grFormName = 'form' + formNumber++;
                 $scope.grFormClassName = $attrs.type || 'form-horizontal';
                 $scope.isEditable = function (definition) {
-                    return !definition.guarded && !definition.type === 'auto_increment';
+                    return !definition.guarded && definition.type !== 'auto_increment';
                 };
             },
             link: function (scope, element, attrs, ctrl, transclude) {

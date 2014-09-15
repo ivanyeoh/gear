@@ -6,10 +6,16 @@ angular.module('gear.dropdown', [])
         transclude: true,
         scope: {
             header: '@',
+            headerClass: '@',
+            icon: '@',
             tagName: '@'
         },
-        template: '<li data-component="dropdown">' +
-            '<a href="#" class="dropdown-toggle" data-toggle="dropdown">{{header}} <span class="caret"></span></a>' +
+        template: '<li class="dropdown">' +
+            '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
+            '<i class="fa fa-male" ng-if="icon"></i>' +
+            '<span class="{{headerClass}}">{{header}}</span> ' +
+            '<i class="caret small"></i>' +
+            '</a>' +
             '<ul class="dropdown-menu" role="menu" ng-transclude></ul>' +
         '</li>'
     }

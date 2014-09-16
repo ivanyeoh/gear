@@ -29,6 +29,10 @@ angular.module('gear.helper', [])
         }
     })
     .factory('str', function () {
+        _.str.grep = function (s, pattern) {
+            var match = s.match(pattern);
+            return match ? match[1] : '';
+        };
         return _.str;
     })
     .factory('arr', function () {
@@ -54,6 +58,12 @@ angular.module('gear.helper', [])
             enable: function (element) {
                 element.removeAttr('disabled');
             },
+            hasTagName: function (element, tagName) {
+                return this.getTagName(element) === tagName;
+            },
+            hasTagNameMatch: function (element, regExpPattern) {
+                return this.getTagName(element).match(regExpPattern) ? true : false;
+            },
             getTagName: function (element) {
                 return element.tagName ? element.tagName.toLowerCase() : '';
             },
@@ -62,6 +72,14 @@ angular.module('gear.helper', [])
             },
             isText: function (element) {
                 return element.nodeType && element.nodeType === document.TEXT_NODE;
+            },
+            getAttributes: function (element) {
+                var attributes = {};
+                for (var att, i = 0, atts = element.attributes, n = atts.length; i < n; i++){
+                    att = atts[i];
+                    attributes[att.nodeName] = att.value || nodeValue;
+                }
+                return attributes;
             },
             hasContent: function (element) {
                 return (element.innerHTML || element.innerText || element.textContent).trim() ? true : false;

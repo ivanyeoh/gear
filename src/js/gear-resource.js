@@ -1,4 +1,22 @@
 angular.module('gear.resource', ['ngResource'])
+    .factory('grResourceStatusInterceptor', function ($q) {
+        return {
+            request: function (config) {
+                config = config || $q.when(config);
+
+                return config;
+            },
+            response: function(response) {
+                return response;
+            },
+            responseError: function (rejection) {
+                if (rejection.status === 403) {
+                    $rootScope.$emit('user:forbidden', rejection);
+                }
+                return $q.reject(rejection);
+            }
+        };
+    })
     .factory('grResource', function ($resource) {
         var apiPath = 'api/public/index.php';
         var ngResources = {};

@@ -48,6 +48,12 @@ angular.module('gear.helper', [])
                 });
                 return element;
             },
+            disable: function (element) {
+                element.prop('disabled', true);
+            },
+            enable: function (element) {
+                element.removeAttr('disabled');
+            },
             getTagName: function (element) {
                 return element.tagName ? element.tagName.toLowerCase() : '';
             },

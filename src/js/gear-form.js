@@ -12,10 +12,10 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
         var formNumber = 0;
         var templates = {
             ngForm: '<div class="row-border {{grFormClassName}}">' +
-                '<ng-form name="{{grFormName}}">' +
+                '<form name="{{grFormName}}">' +
                     '<gr-form-field ng-repeat="grDefinition in grDataDefinitions" ng-if="isEditable(grDefinition)"></gr-form-field>' +
                     '<gr-form-actions></gr-form-actions>' +
-                '</ng-form>' +
+                '</form>' +
             '</div>'
         };
 
@@ -105,7 +105,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
             template: '<label class="control-label" for="{{name}}" ng-transclude></label>'
         }
     })
-    .directive('grFormActionButton', function () {
+    .directive('grFormActionButton', function (dom, grNote, $timeout) {
         return {
             restrict: 'E',
             replace: true,
@@ -113,7 +113,40 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
             scope: {
                 action: '&'
             },
-            template: '<button class="btn" ng-click="action()" ng-transclude></button>'
+            template: '<button class="btn gr-btn-action" ng-class="{loading:loading}" ng-click="act()">' +
+                '<span class="gr-btn-label" ng-transclude></span>' +
+                '<span class="gr-btn-spinner"></span></button>',
+            link: function (scope, element) {
+                scope.loading = false;
+
+                var note = new grNote();
+
+                function start () {
+                    scope.loading = true;
+                    note.loading();
+                    dom.disable(element);
+                }
+                function done () {
+                    scope.loading = false;
+                    note.remove();
+                    dom.enable(element);
+                }
+
+                function error () {
+                    $timeout(function () {
+                        note.error();
+                        done();
+                    }, 2000);
+                }
+                function success () {
+                    $timeout(done, 500);
+                }
+
+                scope.act = function () {
+                    start();
+                    scope.action().then(success).catch(error);
+                };
+            }
         }
     })
     .directive('grFormActions', function ($compile) {
@@ -129,6 +162,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                     if (!angular.isFunction($scope.grData[resourceAction])) {
                         throw 'Calling undefined function grData.'+resourceAction+'()';
                     }
+
                     return $scope.grData[resourceAction]();
                 };
             },

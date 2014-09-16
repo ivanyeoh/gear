@@ -8,10 +8,11 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
     .directive('grInputMoney', InputDirectiveFactory('float', {decimal:2}))
     .directive('grInputBigString', InputDirectiveFactory('textarea'))
     .directive('grInputString', InputDirectiveFactory('text'))
-    .directive('grForm', function (gr) {
+    .directive('grForm', function (gr, grNote) {
         var formNumber = 0;
         var templates = {
             ngForm: '<div class="row-border {{grFormClassName}}">' +
+                '<gr-form-messages></gr-form-messages>' +
                 '<form name="{{grFormName}}">' +
                     '<gr-form-field ng-repeat="grDefinition in grDataDefinitions" ng-if="isEditable(grDefinition)"></gr-form-field>' +
                     '<gr-form-actions></gr-form-actions>' +
@@ -39,9 +40,11 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                 $scope.isEditable = function (definition) {
                     return !definition.guarded && definition.type !== 'auto_increment';
                 };
+
             },
             link: function (scope, element, attrs, ctrl, transclude) {
                 scope.grForm = scope[scope.grFormName];
+                scope.grFormNote = new grNote('alert-box', element);
 
                 transclude(scope, function (tElements) {
                     element.append(tElements);
@@ -83,6 +86,13 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
         }
     })
     .directive('grFormMessages', function () {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: '<div ng-if="grFormNote.pasted"></div>'
+        }
+    })
+    .directive('grFormFieldMessages', function () {
         return {
             restrict: 'E',
             scope: {
@@ -128,15 +138,13 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                 }
                 function done () {
                     scope.loading = false;
-                    note.remove();
+                    note.erase();
                     dom.enable(element);
                 }
 
-                function error () {
-                    $timeout(function () {
-                        note.error();
-                        done();
-                    }, 2000);
+                function error (r) {
+                    note.error();
+                    $timeout(done, 1000);
                 }
                 function success () {
                     $timeout(done, 500);
@@ -163,7 +171,11 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
                         throw 'Calling undefined function grData.'+resourceAction+'()';
                     }
 
-                    return $scope.grData[resourceAction]();
+                    var response = $scope.grData[resourceAction]();
+                    response.catch(function (error) {
+                        $scope.grFormNote.error(error.data);
+                    })
+                    return response;
                 };
             },
             link: function (scope, element, attrs, ctrl, transclude) {
@@ -198,7 +210,7 @@ angular.module('gear.form', ['gear.resource', 'gear.helper', 'gear.validator', '
         }
 
         function createMessages (attrs) {
-            var messages = angular.element('<gr-form-messages>');
+            var messages = angular.element('<gr-form-field-messages>');
             messages.addClass('help-block');
             messages.attr('ctrl', 'fieldCtrl');
             messages.attr('messages', angular.toJson({

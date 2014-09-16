@@ -10,21 +10,21 @@ angular.module('gear.resource', ['ngResource'])
                 return response;
             },
             responseError: function (rejection) {
-                if (rejection.status === 403) {
-                    $rootScope.$emit('user:forbidden', rejection);
-                }
                 return $q.reject(rejection);
             }
         };
     })
+    .config(function ($httpProvider) {
+        $httpProvider.interceptors.push('grResourceStatusInterceptor');
+    })
     .factory('grResource', function ($resource) {
         var apiPath = 'api/public/index.php';
         var ngResources = {};
-
         function buildNgResource (resource, name) {
             angular.forEach(resource, function (definition) {
                 definition.url = apiPath+definition.url;
             });
+
             ngResources[name] = $resource(name, null, resource, {stripTrailingSlashes: false});
         }
 

@@ -9,16 +9,39 @@ angular.module('gear-notice', ['ngAnimate'])
             }
         }
     })
-    .factory('grNote', function ($animate, $compile, $rootScope) {
+    .directive('alertBox', function () {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: '<div class="alert alert-{{className}} fade in">' +
+                    '<i class="fa fa-remove close" ng-click="close()"></i>' +
+                    '<strong>{{note.type|capitalize}}!</strong> {{note.message}}' +
+                '</div>',
+            scope: {
+                note: '='
+            },
+            link: function (scope) {
+                scope.className = scope.note.type == 'error' ? 'danger' : scope.note.type;
+                scope.close = function () {
+                    scope.note.erase();
+                }
+            }
+        }
+    })
+    .factory('grNote', function ($animate, $compile, $rootScope, str, gr) {
         var grNotices = angular.element('.gr-notices');
         if (!grNotices.length) {
             grNotices = angular.element('<div class="gr-notices">');
             angular.element('body').append(grNotices);
         }
 
-        function Note () {
-            this.element = angular.element('<notice-bar note="note">');
+        function Note (type, parent) {
+            this.elementType = type ? str.dasherize(type) : '';
+            this.elementType = gr.hasDirective(this.elementType) ? this.elementType : 'notice-bar';
             this.pasted = false;
+            this.parent = parent || grNotices;
+            this.scope = $rootScope.$new();
+            this.scope.note = this;
         }
         Note.prototype.success = function (message) {
             this.write(message || 'Done!', 'success');
@@ -35,17 +58,17 @@ angular.module('gear-notice', ['ngAnimate'])
         Note.prototype.write = function (message, type) {
             this.type = type;
             this.message = message;
-
             if (!this.pasted) {
-                var noticeScope = $rootScope.$new();
-                noticeScope.note = this;
-                $compile(this.element)(noticeScope);
+                if (this.element) this.element.remove();
+                this.element = angular.element('<'+str.dasherize(this.elementType)+' note="note">');
 
-                $animate.enter(this.element, grNotices);
+                $compile(this.element)(this.scope);
+
+                $animate.enter(this.element, this.parent);
                 this.pasted = true;
             }
         };
-        Note.prototype.remove = function () {
+        Note.prototype.erase = function () {
             $animate.leave(this.element);
             this.pasted = false;
         };

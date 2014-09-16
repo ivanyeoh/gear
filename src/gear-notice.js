@@ -1,15 +1,15 @@
-angular.module('gear-notice')
+angular.module('gear-notice', [])
     .directive('noticeBar', function () {
         return {
             restrict: 'E',
             replace: true,
-            template: '<div class="gr-notice-bar {{note.type}}">{{note.message}}</div>',
+            template: '<div class="gr-notice {{note.type}}">{{note.message}}</div>',
             scope: {
                 note: '='
             }
         }
     })
-    .factory('notify', function (_, $compile, $rootScope) {
+    .factory('grNotify', function ($animate, $compile, $rootScope) {
         var grNotices = angular.element('.gr-notices');
         if (!grNotices.length) {
             grNotices = angular.element('<div class="gr-notices">');
@@ -24,8 +24,8 @@ angular.module('gear-notice')
             var noticeScope = $rootScope.$new();
             noticeScope.note = this;
             $compile(this.element)(noticeScope);
-
-            grNotices.append(this.element);
+console.log(this.element);
+            $animate.enter(this.element, grNotices);
         }
         Note.prototype.success = function (message) {
             this.type = 'success';
@@ -40,7 +40,7 @@ angular.module('gear-notice')
             this.message = message;
         };
         Note.prototype.remove = function () {
-            this.element.remove();
+            $animate.leave(this.element);
         };
 
         return function notify (message, type) {

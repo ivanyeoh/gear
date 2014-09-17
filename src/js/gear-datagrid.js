@@ -1,5 +1,5 @@
 angular.module('gear.datagrid', [])
-    .directive('grDatagrid', function ($timeout, dom, $compile, arr, field, str) {
+    .directive('grDatagrid', function (dom, $compile, arr, field, str) {
         function relocateDirective (from, to, tagName) {
             if (from.length) {
                 var toElement = angular.element('<'+tagName+'>');
@@ -55,7 +55,6 @@ angular.module('gear.datagrid', [])
             link: function (scope, element, attrs, ctrl, transclude) {
                 scope.grData = scope.resource.query();
 
-
                 var headContainer = element.find('thead tr');
                 var bodyContainer = element.find('tbody tr');
 
@@ -65,7 +64,9 @@ angular.module('gear.datagrid', [])
                     var customDefinitions = arr.filter(tElements, function (tElement) {
                         return dom.hasTagNameMatch(tElement, /^gr-datagrid/);
                     });
-
+                    var actionDefinitions = arr.remove(customDefinitions, function (customDefinition) {
+                        return dom.hasTagName(customDefinition, 'gr-datagrid-actions');
+                    });
                     if (customDefinitions.length) {
                         angular.forEach(customDefinitions, function (customDefinition) {
                             buildFromElement(headContainer, bodyContainer, customDefinition, scope);
